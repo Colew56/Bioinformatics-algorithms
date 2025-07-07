@@ -1,0 +1,53 @@
+import matplotlib.pyplot as plt
+def readFastq(filename):
+    sequences = []
+    qualities = []
+    with open(filename) as fh:
+        while True:
+            fh.readline()  # skip name line
+            seq = fh.readline().rstrip()  # read base sequence
+            fh.readline()  # skip placeholder line
+            qual = fh.readline().rstrip() # base quality line
+            if len(seq) == 0:
+                break
+            sequences.append(seq)
+            qualities.append(qual)
+    return sequences, qualities
+
+def phred33ToQ(qual_char):
+    return ord(qual_char) - 33
+
+def average_quality_per_position_variable(qualities):
+    max_len = max(len(q) for q in qualities)
+    totals = [0] * max_len
+    counts = [0] * max_len
+
+    for q in qualities:
+        for i in range(len(q)):
+            totals[i] += phred33ToQ(q[i])
+            counts[i] += 1
+
+    averages = [totals[i] / counts[i] for i in range(max_len)]
+    return averages
+
+# Load the data
+sequences, qualities = readFastq('ERR037900_1.first1000.fastq')
+
+# Get average quality scores
+avg_qualities = average_quality_per_position_variable(qualities)
+
+# 🔍 Find the position with the lowest score
+worst_position = avg_qualities.index(min(avg_qualities))
+worst_score = min(avg_qualities)
+
+print(f"Lowest average quality is at position {worst_position} with score {worst_score:.2f}")
+
+# 📈 Plot it
+plt.plot(range(len(avg_qualities)), avg_qualities)
+plt.axvline(worst_position, color='red', linestyle='--', label=f'Lowest: Pos {worst_position}')
+plt.xlabel('Position in Read')
+plt.ylabel('Average Quality Score')
+plt.title('Average Base Quality by Position')
+plt.legend()
+plt.grid(True)
+plt.show()
