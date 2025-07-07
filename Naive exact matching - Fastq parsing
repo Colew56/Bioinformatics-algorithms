@@ -1,0 +1,57 @@
+def reverseComplement(s):
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
+    t = ''
+    for base in s:
+        t = complement[base] + t
+    return t
+
+def readGenome(filename):
+    genome = ''
+    with open(filename, 'r') as f:
+        for line in f:
+            # ignore header line with genome information
+            if not line[0] == '>':
+                genome += line.rstrip()
+    return genome
+
+def naive(p, t):
+    
+    occurences = []
+    rev = reverseComplement(p)
+    for i in range(len(t) - len(p) + 1):
+        match = True
+        for j in range(len(p)):
+            if not t[i + j] == p[j]:  # <-- colon added
+                match = False
+                break
+        if match:
+            occurences.append((i, 'forward'))
+        
+        revmatch = True
+        for r in range(len(p)):
+            
+            if not t[i + r] == rev[r]:  # <-- colon added
+                revmatch = False
+                break
+        if revmatch and (rev!= p):
+            occurences.append((i, 'reverse'))
+            
+    return occurences
+
+def naive_2mm(p, t,maxmm=2):
+    occurences=[]
+    
+    for i in range(len(t) - len(p) + 1):
+        mm=0
+        for j in range(len(p)):
+            if not t[i + j] == p[j]:  # <-- colon added
+                mm += 1
+                if mm > maxmm:
+                    break
+        if mm <= maxmm:
+            occurences.append(i)
+    return occurences
+
+genome=readGenome('lambda_virus.fa')
+print(len(naive(p,genome)))
+
