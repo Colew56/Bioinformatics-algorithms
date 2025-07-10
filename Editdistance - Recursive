@@ -1,0 +1,20 @@
+n = 0
+def edDistrecursive (a,b):
+    global n
+    if len(a) == 0:
+        return len(b)
+    if len(b) == 0:
+        return len(a)
+    if a == 'AB' and b == 'BB':
+        n += 1
+        return n
+    delt = 1 if a[-1] != b[-1] else 0
+    return min(edDistrecursive(a[:-1], b[:-1]) + delt,
+               edDistrecursive(a[:-1], b) + 1,
+               edDistrecursive(a, b[:-1]) + 1)
+    
+
+a = 'ABC'
+b = 'BBC'
+
+print(edDistrecursive(a,b), n)
